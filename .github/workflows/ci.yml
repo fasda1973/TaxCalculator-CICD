@@ -1,0 +1,45 @@
+name: CI/CD - Java Tax Calculator
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Build, Test and Package
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clona o código do repositório para a VM do GitHub Actions
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Java 17 com a distribuição Temurin e ativa o cache do Maven
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 3. Dá permissão de execução para o script do Maven Wrapper (caso use ./mvnw)
+      - name: Dar permissão de execução ao Maven Wrapper
+        run: chmod +x mvnw || true
+
+      # 4. Executa os testes unitários do JUnit (se um teste falhar, o pipeline para aqui)
+      - name: Executar testes automatizados (JUnit)
+        run: mvn test
+
+      # 5. Gera o pacote .jar executável ignorando a reexecução dos testes
+      - name: Compilar e gerar pacote .jar
+        run: mvn package -DskipTests
+
+      # 6. Faz o upload do arquivo .jar gerado para a aba Actions do GitHub
+      - name: Salvar o artefato .jar compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: tax-calculator-app
+          path: target/*.jar
+          retention-days: 7 # Mantém o arquivo disponível para download por 7 dias
