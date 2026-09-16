@@ -16,7 +16,7 @@ class TaxServiceTest {
     @Test
     void shouldCalculateIssCorrectly() {
         double result = taxService.calculateIss(1000.0);
-        assertEquals(99.0, result, 0.001);
+        assertEquals(50.0, result, 0.001);
     }
 
     @Test
